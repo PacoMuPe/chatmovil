@@ -4,21 +4,42 @@
             <div class="contacto-img">
             </div>
             <div class="contacto-info">
-                <h4>Pablo</h4>
+                <h4>Paco</h4>
             </div>
         </div>
         <div class="mensaje-recibido">
             <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Porro distinctio harum nemo consequatur ipsam delectus non aperiam eaque, eos officia provident alias cumque voluptatum quod ab qui, vitae voluptatem molestias?</p>
             <img src="/barrachat.svg" alt="">
         </div>
-        <div class="mensaje-enviado"></div>
+        <div class="mensaje-enviado">
+            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Porro distinctio harum nemo consequatur ipsam delectus non aperiam eaque, eos officia provident alias cumque voluptatum quod ab qui, vitae voluptatem molestias?</p>
+            <img src="/barrachat.svg" alt="">
+        </div>
     </div>
 </template>
 
 <script>
 export default {
   name: 'chat',
+  props: ['emisor', 'receptor'],
   components: {
+  },
+  mounted: function () {
+    let that = this;
+    axios.get('https://api.airtable.com/v0/appKu3WYsSg5zDj92/mensajes?view=Grid%20view')
+      .then(function (response) {
+        // handle success
+        console.log(response.data);
+        that.usuarios = response.data.records;
+        that.loading = false;
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
   }
 }
 </script>
@@ -59,7 +80,7 @@ export default {
 }
 
 .mensaje-recibido {
-    
+
 }
 
 .mensaje-recibido p {
@@ -70,6 +91,21 @@ export default {
 .mensaje-recibido img {
     transform: scaleX(-1);
     width: 95%;
+    margin-top: -35px;
+}
+
+.mensaje-enviado {
+    margin-top: 2rem;
+}
+
+.mensaje-enviado p {
+    width: 85%;
+    margin-right: 0.5rem;
+}
+
+.mensaje-enviado img {
+    width: 95%;
+    margin-top: -35px;
 }
 </style>
 

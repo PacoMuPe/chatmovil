@@ -12,22 +12,47 @@
       </div>
     </div>
     <div class="listado-chats">
-      <div class="chat">
+      <div class="chat" v-for="usuario in usuarios" :key="usuario.id">
         <div class="chat__imagen"></div>
         <div class="chat__info">
-          <h4 class="chat__info__contacto">Pablo</h4>
+          <h4 class="chat__info__contacto">{{ usuario.fields.username }}</h4>
           <p class="chat__info__conversacion">Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam quo...</p>
         </div>
-        <router-link :to="{ name: 'chat' }"><img src="/flecha.png" alt="" class="flecha-chat"></router-link>
+        <router-link :to="{ name: 'chat', params: { emisor: yo, receptor: usuario.id } }"><img src="/flecha.png" alt="" class="flecha-chat"></router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+
 export default {
   name: 'list',
   components: {
+  },
+  data: function () {
+    return {
+      usuarios: [],
+      loading: true,
+      yo: 'rechPD2xRA8LElS5f'
+    }
+  },
+  mounted: function () {
+    let that = this;
+    axios.get('https://api.airtable.com/v0/appKu3WYsSg5zDj92/usuarios?view=Grid%20view')
+      .then(function (response) {
+        // handle success
+        console.log(response.data);
+        that.usuarios = response.data.records;
+        that.loading = false;
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .then(function () {
+        // always executed
+      });
   }
 }
 </script>

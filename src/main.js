@@ -5,6 +5,8 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+axios.defaults.headers.common['Authorization'] = 'Bearer keyehUoDvT23W9lTd';
+
 new Vue({
   router,
   render: h => h(App)
