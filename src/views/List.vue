@@ -18,7 +18,7 @@
           <h4 class="chat__info__contacto">{{ usuario.fields.username }}</h4>
           <p class="chat__info__conversacion">Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam quo...</p>
         </div>
-        <router-link :to="{ name: 'chat', params: { emisor: yo, receptor: usuario.id } }"><img src="/flecha.png" alt="" class="flecha-chat"></router-link>
+        <router-link :to="{ name: 'chat', params: { emisor: $route.params.emisor, receptor: usuario.id } }"><img src="/flecha.png" alt="" class="flecha-chat"></router-link>
       </div>
     </div>
   </div>
@@ -34,7 +34,6 @@ export default {
     return {
       usuarios: [],
       loading: true,
-      yo: 'rechPD2xRA8LElS5f'
     }
   },
   mounted: function () {

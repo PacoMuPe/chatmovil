@@ -8,6 +8,11 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'login',
+      component: () => import('./views/login.vue')
+    },
+    {
+      path: '/list/:emisor',
       name: 'list',
       component: () => import('./views/List.vue')
     },
