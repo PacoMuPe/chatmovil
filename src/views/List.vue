@@ -2,6 +2,7 @@
   <div class="list fixed pin">
     <div class="bg-grey-dark">
       <h3 class="h3">Chats activos</h3>
+      <router-link :to="{ name: 'login' }" class="flecha-login"><img src="/flecha-blanca.svg" alt=""></router-link>
     </div>
     <div class="bg-white">
       <div class="buscador">
@@ -11,14 +12,17 @@
         </div>
       </div>
     </div>
-    <div class="listado-chats">
-      <div class="chat" v-for="usuario in usuarios" :key="usuario.id">
-        <div class="chat__imagen"></div>
-        <div class="chat__info">
-          <h4 class="chat__info__contacto">{{ usuario.fields.username }}</h4>
-          <p class="chat__info__conversacion">Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam quo...</p>
+    <loading v-if="loading" class="flex justify-center items-center mt-12 mx-auto"></loading>
+    <div v-else>
+      <div class="listado-chats">
+        <div class="chat" v-for="usuario in usuarios" :key="usuario.id">
+          <div class="chat__imagen"></div>
+          <div class="chat__info">
+            <h4 class="chat__info__contacto">{{ usuario.fields.username }}</h4>
+            <p class="chat__info__conversacion">Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam quo...</p>
+          </div>
+          <router-link :to="{ name: 'chat', params: { emisor: $route.params.emisor, receptor: usuario.id } }" class="flecha-chat"><img src="/flecha-gris.svg" alt=""></router-link>
         </div>
-        <router-link :to="{ name: 'chat', params: { emisor: $route.params.emisor, receptor: usuario.id } }"><img src="/flecha.png" alt="" class="flecha-chat"></router-link>
       </div>
     </div>
   </div>
@@ -26,9 +30,12 @@
 
 <script>
 
+import loading from '@/components/loading.vue'
+
 export default {
   name: 'list',
   components: {
+    loading
   },
   data: function () {
     return {
@@ -94,7 +101,7 @@ export default {
 
   .list {
     font-family: 'Lato', sans-serif;
-    background: linear-gradient(to right, rgba(76,173,200,1) 0%, rgba(81,172,195,1) 9%, rgba(99,169,175,1) 45%, rgba(128,163,144,1) 100%);
+    background: rgb(238, 125, 80);
   }
 
   .listado-chats {
@@ -117,7 +124,22 @@ export default {
     background-color: rgb(220, 220, 220);
     border-radius: 100%;
   }
+  .flecha-login {
+    transform: scaleX(-1);
+    position: fixed;
+    top: 0;
+    padding: 1rem;
+  }
+
+  .flecha-login img {
+    height: 20px;
+  }
+
   .flecha-chat {
+    
+  }
+
+  .flecha-chat img {
     height: 22px;
   }
   
@@ -131,6 +153,7 @@ export default {
     font-size: 0.7rem;
     color: rgb(150, 150, 150);
   }
+
 </style>
 
 

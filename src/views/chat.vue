@@ -1,32 +1,41 @@
 <template>
-    <div class="chat fixed pin">
-        <div class="contacto">
+    <div class="chat">
+        <div class="contacto fixed">
             <div class="contacto-img"></div>
             <div class="contacto-info">
                 <h4>{{ receptorUsername }}</h4>
-                <router-link :to="{ name: 'list' }"><img src="/flecha.png" alt="" class="flecha-chat"></router-link>
+                <router-link :to="{ name: 'list' }"><img src="/flecha-gris.svg" alt="" class="flecha-chat"></router-link>
             </div>
         </div>
-        <div v-for="mensaje in mensajes" :key="mensaje.id" class="conversacion">
-            <p class="p-4 border-b-2 border-white" :class="{ 'text-right' : mensaje.fields.emisor == $route.params.emisor }">{{ mensaje.fields.texto }}</p>
+        <div class="conversacion">
+            <loading v-if="loading" class="flex justify-center items-center mt-12"></loading>
+            <div v-else v-for="mensaje in mensajes" :key="mensaje.id" class="mensaje-recibido" :class="{ 'mensaje-enviado' : mensaje.fields.emisor == $route.params.emisor }">
+                <p>{{ mensaje.fields.texto }}</p>
+            </div>
         </div>
+        
         <div class="input-texto">
-            <input type="text" v-model="textoNuevoMensaje">
+            <input type="text" v-model="textoNuevoMensaje" @keyup.enter="nuevoMensaje">
             <button @click.prevent="nuevoMensaje"><i class="far fa-comment-alt"></i></button>
         </div>
     </div>
 </template>
 
 <script>
+
+import loading from '@/components/loading.vue'
+
 export default {
   name: 'chat',
   props: ['emisor', 'receptor'],
   components: {
+      loading
   },
   data: function () {
             return {
             loading: true,
             receptorUsername: '',
+            emisorUsername: '',
             mensajes: [],
             textoNuevoMensaje: '',
             tiempoRefresco: 1000,
@@ -35,8 +44,9 @@ export default {
   },
   mounted: function () {
     let that = this;
-    axios.get(`https://api.airtable.com/v0/appKu3WYsSg5zDj92/usuarios/${that.$route.params.receptor}`)
+    axios.get(`https://api.airtable.com/v0/appKu3WYsSg5zDj92/usuarios/${that.$route.params.emisor}`)
         .then(function (response) {
+            that.emisorUsername = response.data.fields.username;
              //obtenemos el nombre del receptor
             axios.get(`https://api.airtable.com/v0/appKu3WYsSg5zDj92/usuarios/${that.$route.params.receptor}`)
             .then(function (response) {
@@ -44,7 +54,7 @@ export default {
                 //con el resultado, obtenemos los mensajes del receptor
                 that.cargarMensaje();
                 //refrescamos mensajes
-                setInterval(that.cargarMensaje, that.tiempoRefresco)
+                setInterval(that.cargarMensaje, that.tiempoRefresco);
             })
             .catch(function (error) {
                 // handle error
@@ -66,10 +76,12 @@ export default {
         cargarMensaje: function () {
             let that = this;
             // con el resultado, obtenemos los mensajes del receptor y del emisor
-            axios.get(`https://api.airtable.com/v0/appKu3WYsSg5zDj92/mensajes?view=Grid%20view&filterByFormula=OR(AND({Emisor}="${that.$route.params.emisor}", {Receptor}="${that.receptorUsername}"), AND({Emisor}="${that.receptorUsername}", {Receptor}="${that.$route.params.emisor}"))`)
+            axios.get(`https://api.airtable.com/v0/appKu3WYsSg5zDj92/mensajes?view=Grid%20view&filterByFormula=OR(AND({Emisor}="${that.emisorUsername}", {Receptor}="${that.receptorUsername}"), AND({Emisor}="${that.receptorUsername}", {Receptor}="${that.emisorUsername}"))`)
                 .then(function (response) {
                     // handle success
-                    that.mensajes = response.data.records;
+                    if (response.data.records.length != that.mensajes.length) {
+                        that.mensajes = response.data.records;
+                    }
                 })
                 .catch(function (error) {
                     // handle error
@@ -77,6 +89,8 @@ export default {
                 })
                 .then(function () {
                     // always executed
+                                            that.loading = false;
+
                 });
         },
         nuevoMensaje: function () {
@@ -95,7 +109,7 @@ export default {
             })
                 .then(function (response) {
                     that.cargarMensaje();
-                    that.textoNuevoMensaje = '';
+                    that.textoNuevoMensaje = '';                    
                 })
                 .catch(function (error) {
                     // handle error
@@ -106,7 +120,11 @@ export default {
                 });
             
             // refrescamos los mensajes
+        },
+        updated: function() {
+            window.scrollTo(0, document.body.scrollHeight);
         }
+        
     }
 }
 </script>
@@ -114,7 +132,9 @@ export default {
 <style lang="postcss" scoped>
 .chat {
     font-family: 'Lato', sans-serif;
-    background-color: rgb(184, 204, 194);
+    background-color: rgb(238, 125, 80);
+    height: 100vh;
+    overflow: scroll;
 }
 
 .contacto {
@@ -122,6 +142,7 @@ export default {
     display: flex;
     align-items: center;
     height: 20%;
+    position: fixed;
 }
 
 .contacto-img {
@@ -154,40 +175,18 @@ export default {
     padding: 0 1rem;
 }
 
+.conversacion {
+    margin-top: 8rem;
+    margin-bottom: 5rem;
+}
+
 .mensaje-recibido {
-
-}
-
-.mensaje-recibido p {
-    width: 85%;
-    margin-left: 1rem;
-}
-
-.mensaje-recibido img {
-    transform: scaleX(-1);
-    width: 95%;
-    margin-top: -35px;
+    @apply p-4 bg-grey-light my-2 w-4/5 rounded-lg ml-2
 }
 
 .mensaje-enviado {
-    margin-top: 2rem;
-}
-
-.mensaje-enviado p {
-    width: 85%;
-    margin-right: none;
-    margin-left: 2.5rem;
-}
-
-.mensaje-enviado img {
-    width: 95%;
-    margin-top: -35px;
-    position: absolute;
-    right: 0;
-}
-
-.conversacion {
-    overflow: scroll;
+    background-color: rgb(238, 169, 80);
+    @apply text-right mr-2 ml-auto p-4 my-2 w-4/5 rounded-lg
 }
 
 .input-texto {
