@@ -122,7 +122,8 @@ export default {
             // refrescamos los mensajes
         },
         updated: function() {
-            window.scrollTo(0, document.body.scrollHeight);
+            let conversacion = document.querySelector('.conversacion');
+            conversacion.scrollTo(0, conversacion.scrollHeight);
         }
         
     }

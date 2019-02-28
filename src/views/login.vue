@@ -56,7 +56,7 @@ export default {
     }
 
     .login select {
-        width: 11rem;
+        width: 70vw;
         height: 3rem;
         text-align: center;
         border-radius: 10px;

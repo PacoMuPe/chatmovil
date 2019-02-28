@@ -6,8 +6,15 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
+    
+    
     {
-      path: '/',
+      path: '/signup',
+      name: 'signup',
+      component: () => import('./views/signup.vue')
+    },
+    {
+      path: '/login',
       name: 'login',
       component: () => import('./views/login.vue')
     },
