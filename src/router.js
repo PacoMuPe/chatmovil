@@ -7,7 +7,11 @@ Vue.use(Router)
 export default new Router({
   routes: [
     
-    
+    {
+      path: '/',
+      name: 'inicio',
+      component: () => import('./views/inicio.vue')
+    },
     {
       path: '/signup',
       name: 'signup',

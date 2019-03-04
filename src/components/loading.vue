@@ -1,6 +1,6 @@
 <template>
   <div class="cargador">
-    <div class="lds-dual-ring"></div>
+    <div class="lds-dual-ring">{{ mensaje }}</div>
   </div>
 </template>
 
@@ -8,7 +8,10 @@
 export default {
     name: 'loading',
     props: {
-        
+        mensaje: {
+          default: 'cargando',
+          type: String
+        }
     }
 }
 </script>

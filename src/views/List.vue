@@ -3,6 +3,7 @@
     <div class="bg-grey-dark">
       <h3 class="h3">Chats activos</h3>
       <router-link :to="{ name: 'login' }" class="flecha-login"><img src="/flecha-blanca.svg" alt=""></router-link>
+      <button class="boton-cerrar-sesion" @click="cerrarSesion"> <i class="fas fa-door-open"></i></button>
     </div>
     <div class="bg-white">
       <div class="buscador">
@@ -59,6 +60,13 @@ export default {
       .then(function () {
         // always executed
       });
+  },
+  methods:{
+    cerrarSesion: function () {
+      //borramos local storage
+      localStorage.removeItem('usuario');
+      this.$router.push({ name: 'login'})
+    }
   }
 }
 </script>
@@ -154,6 +162,18 @@ export default {
     color: rgb(150, 150, 150);
   }
 
+  .boton-cerrar-sesion {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 0.5rem;
+    margin: 0.5rem;
+    @apply bg-white rounded-full
+  }
+
+  .boton-cerrar-sesion:focus {
+    outline: 0px;
+  }
 </style>
 
 

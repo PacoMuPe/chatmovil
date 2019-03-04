@@ -1,39 +1,80 @@
 <template>
     <div class="login">
-        <select v-model="emisorSeleccionado" name="usuarios" id="">
-            <option value="0" disabled>Seleccionar usuario</option>
-            <option v-for="usuario in usuarios" :key="usuario.id" :value="usuario.id">{{ usuario.fields.username }}</option>
-        </select>
-        <router-link :to="{ name: 'list' , params: { emisor: emisorSeleccionado }}" ><button>log in</button></router-link>
+        <h4 v-if="errorLogin">El usuario o la contraseña son incorrectos</h4>
+        <loading v-if="loading" mensaje="comprobando datos" class="flex justify-center mt-12"></loading>
+        <input type="text" v-model="username" :class="{ 'errorLogin' : errorLogin }" @keyup.enter="iniciarSesion" placeholder="Usuario">
+        <input type="password" v-model="password" :class="{ 'errorLogin' : errorLogin }" @keyup.enter="iniciarSesion" placeholder="Contraseña">
+        <router-link :to="{ name: 'list' , params: { emisor: emisorSeleccionado }}"><button @click.prevent="iniciarSesion">log in</button></router-link>
     </div>
 </template>
 
+
 <script>
+
+import loading from '@/components/loading.vue'
 
 export default {
     name: 'login',
+    components: {
+        loading
+    },
     data: function () {
         return {
             usuarios: [],
-            emisorSeleccionado: 0
+            emisorSeleccionado: 0,
+            username: '',
+            password: '',
+            errorLogin: false,
+            loading: false
+
         }
     },
     mounted: function () {
-    let that = this;
-    axios.get('https://api.airtable.com/v0/appKu3WYsSg5zDj92/usuarios?view=Grid%20view')
-        .then(function (response) {
-            // handle success
-            that.usuarios = response.data.records;
-            that.loading = false;
-            console.log(usuarios);
-        })
-        .catch(function (error) {
-            // handle error
-            console.log(error);
-        })
-        .then(function () {
-            // always executed
-        });
+        this.autologin();
+    },
+    methods: {
+        autologin: function () {
+            // obtenemos los datos almacenados del usuario
+            let usuario = JSON.parse(localStorage.getItem('usuario'));
+            // comprobamos si tenemos un usuario guardado
+            if(usuario != null) {
+                // Redireccionamos a list
+                this.$router.push({ name: 'list', params: { emisor: usuario.id }});
+            }
+        },
+
+        iniciarSesion: function () {
+            this.validarUsuario();
+        },
+        validarUsuario: function () {
+            let that = this;
+            this.loading = true;
+            this.errorLogin = false;
+            axios.get(`https://api.airtable.com/v0/appKu3WYsSg5zDj92/usuarios?view=Grid%20view&filterByFormula=AND(UPPER({username})="${that.username.toUpperCase()}", {password}="${that.password}")`)
+                .then(function (response) {
+                    // handle success
+                    if(response.data.records.length > 0){
+                        // Guardamos el usuario
+                        localStorage.setItem('usuario', JSON.stringify({
+                            id: response.data.records[0].id,
+                            username: that.username,
+                        }));
+                        // Cambiamos de pantalla a lista de usuarios
+                        that.$router.push({ name: 'list', params: { emisor: response.data.records[0].id }});
+                    } else {
+                        // el usuario no existe
+                        that.errorLogin = true;
+                    }
+                })
+                .catch(function (error) {
+                    // handle error
+                    console.log(error);
+                })
+                .then(function () {
+                    // always executed
+                    that.loading = false;
+                });
+        }
     }
 }
 
@@ -55,20 +96,21 @@ export default {
         background-color: rgb(184, 204, 194);
     }
 
-    .login select {
+    .login input {
         width: 70vw;
         height: 3rem;
-        text-align: center;
         border-radius: 10px;
         background-color: transparent;
         border: 2px solid white; 
+        padding: 1rem;
+        margin: 0.7rem auto;
     }
 
     .login option {
         text-align: center;
     }
 
-    .login select:focus {
+    .login input:focus {
         outline: 0px; 
     }
 
@@ -78,8 +120,15 @@ export default {
         border: 2px solid white;
         background-color: white;
         border-radius: 10px;
-        margin-top: 1rem;
         color: rgb(184, 204, 194);
+    }
+
+    button:focus {
+        outline: 0px;
+    }
+
+    .errorLogin {
+        @apply bg-red-lighter border-red
     }
 
 </style>
